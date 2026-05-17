@@ -433,6 +433,30 @@
             border-radius: 6px;
         }
 
+        .gen-note.collab {
+            margin-top: 24px;
+            margin-bottom: 0;
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(236, 72, 153, 0.04));
+        }
+
+        .gen-note.collab .label {
+            color: #b45309;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .gen-note.collab a {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px dashed var(--accent);
+        }
+
+        .gen-note.collab a:hover {
+            opacity: 0.85;
+        }
+
         @media (max-width: 960px) {
             .gen-spec-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -1132,6 +1156,16 @@
                         <div class="gen-spec-value">32<span class="unit">B200 GPU-days</span></div>
                         <div class="gen-spec-note">≈ <strong>$3–4k</strong> rental cost</div>
                     </div>
+                </div>
+
+                <div class="gen-note collab">
+                    <span class="label">Note:</span> the current preliminary result is a
+                    <strong>self-funded exploration project</strong>, so all the data and compute are very limited 
+                    (but all the data pipeline and training infrastructure are designed for the large-scale experiments). 
+                    We believe that if scaled with <strong>8× model size</strong>, <strong>64× data</strong> and
+                    <strong>32× compute</strong> (it will take around $0.6m and 4-6 weeks and it's still 15x less data and 30x less compute than the state-of-the-art models), we can get a top-tier competitive foundation model.
+                    If you are interested in further collaboration, feel free to reach out to
+                    <a href="mailto:qiangzhang0123@gmail.com">qiangzhang0123@gmail.com</a>.
                 </div>
             </div>
 
