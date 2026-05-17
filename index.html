@@ -217,6 +217,14 @@
             color: var(--text);
         }
 
+        .section-subtitle {
+            max-width: 720px;
+            margin: 16px auto 0;
+            font-size: 16px;
+            line-height: 1.65;
+            color: var(--text-muted);
+        }
+
         /* ---------- Abstract ---------- */
         .abstract {
             background: var(--bg-card);
@@ -758,17 +766,35 @@
             background: linear-gradient(180deg, transparent 0%, rgba(99, 102, 241, 0.04) 100%);
         }
 
+        .highlights + .highlights {
+            padding-top: 0;
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        .highlights + .highlights + .highlights {
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.04) 0%, transparent 100%);
+        }
+
+        .highlights .container {
+            max-width: 1320px;
+        }
+
         .highlight-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
         }
 
         .highlight-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 28px;
+            padding: 36px 32px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            column-gap: 14px;
+            row-gap: 14px;
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
@@ -781,12 +807,12 @@
         .highlight-icon {
             width: 44px;
             height: 44px;
+            flex-shrink: 0;
             border-radius: 12px;
             background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid));
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 16px;
             color: white;
         }
 
@@ -796,14 +822,18 @@
         }
 
         .highlight-card h3 {
-            font-size: 17px;
+            flex: 1;
+            min-width: 0;
+            font-size: 19px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin: 0;
             color: var(--text);
         }
 
         .highlight-card p {
-            font-size: 14px;
+            flex-basis: 100%;
+            margin: 0;
+            font-size: 15px;
             color: var(--text-muted);
             line-height: 1.6;
         }
@@ -946,25 +976,32 @@
             <div class="abstract">
                 <p>
                     Video generation models have demonstrated remarkable potential for applications ranging from
-                    <strong>filmmaking and advertising</strong> to <strong>embodied ai world modeling</strong>.
+                    <strong>filmmaking and advertising</strong> to <strong>embodied AI world modeling</strong>.
                     However, current systems suffer from several fundamental bottlenecks: prohibitively high training
-                    and inference costs, and limited generation length, typically constrained to short video clips.
+                    and inference costs, physics modeling that is not accurate enough, and limited generation length,
+                    typically constrained to short video clips.
                 </p>
                 <p>
-                    We argue that these limitations largely stem from inefficient video representations, particularly
-                    those based on conventional Video VAEs. Existing Video VAEs often require <strong>more than 10k
-                    tokens per second</strong> of high-quality video, resulting in extremely long token sequences for
-                    downstream transformer models, whose computational cost scales <em>quadratically</em> with sequence length.
+                    We argue that all of these limitations largely stem from inefficient and inappropriate video
+                    representations, particularly those based on conventional Video VAEs. Existing Video VAEs often
+                    require <strong>more than 10k tokens per second</strong> of high-quality video, resulting in
+                    extremely long token sequences for downstream transformer models, whose computational cost scales
+                    <em>quadratically</em> with sequence length. Also, the spatial-temporal patch tokens from VAEs are
+                    all independent of each other without correlations, and thus do not represent any physics-related
+                    latent space.
                 </p>
                 <p>
-                    In this paper, we introduce <strong>DeltaTokens</strong>, a novel and highly efficient video
+                    In this paper, we introduce <strong>DeltaToken</strong>, a novel and highly efficient video
                     representation that achieves comparable reconstruction quality while using up to
-                    <strong>100× fewer tokens</strong>. DeltaTokens is built upon a causal, streaming encoder that
+                    <strong>192× fewer tokens</strong>. DeltaToken is built upon a causal, streaming encoder that
                     compactly encodes inter-frame delta information (motion) into one-dimensional token sequences,
-                    paired with a causal streaming decoder and a diffusion-based decoder to reconstruct high-fidelity videos.
+                    paired with a causal streaming decoder and a diffusion-based decoder to reconstruct high-fidelity
+                    videos. We believe that this is the key for the <strong>next-generation world model</strong>,
+                    enabling much lower training cost, much faster real-time interactive inference, much longer context
+                    length and memory, and much better physics modeling.
                 </p>
                 <p>
-                    Extensive experiments demonstrate that DeltaTokens significantly improves both reconstruction
+                    Extensive experiments demonstrate that DeltaToken significantly improves both reconstruction
                     efficiency and generation scalability, enabling longer video generation at substantially reduced
                     computational cost. Our results suggest that rethinking video representations through
                     <strong>delta-based tokenization</strong> is a promising direction for scalable video generation models.
@@ -976,57 +1013,113 @@
     <section class="highlights">
         <div class="container">
             <div class="section-header">
-                <!-- <span class="section-eyebrow">// Key Contributions</span> -->
-                <h2>What Makes DeltaTokens Different</h2>
+                <!-- <span class="section-eyebrow">// Intuition</span> -->
+                <h2>Intuition and Components</h2>
+                <p class="section-subtitle">
+                    Our approach is grounded in three key observations that challenge the current limitations
+                    of video tokenization.
+                </p>
             </div>
 
             <div class="highlight-grid">
                 <div class="highlight-card">
                     <div class="highlight-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>
                     </div>
-                    <h3>Delta-Based Tokenization</h3>
-                    <p>Encodes inter-frame motion (delta) information into compact 1D sequences, dramatically reducing token redundancy across frames.</p>
+                    <h3>Long-range Motion Correlation</h3>
+                    <p>Current Video-VAEs compress only a few neighboring frames, ignoring strong temporal correlations across longer distances. Drawing on 25+ years of video codec research, we reintegrate the concept of <strong>motion blocks</strong> — the most important component in DeltaToken for reducing token count.</p>
                 </div>
 
                 <div class="highlight-card">
                     <div class="highlight-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/></svg>
                     </div>
-                    <h3>Causal Streaming Design</h3>
-                    <p>Streaming encoder and decoder enable online processing — ideal for real-time world models and robot perception loops.</p>
+                    <h3>1D Fused Representations</h3>
+                    <p>Following the success of TiTok, 1D tokenization shows strong potential for visual tasks. 1D tokens enable better cross-sequence communication and dynamically allocate capacity — <strong>fewer tokens for low-entropy regions, more for high-complexity areas</strong> — outperforming 2D grid-based tokens.</p>
                 </div>
 
                 <div class="highlight-card">
                     <div class="highlight-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
                     </div>
-                    <h3>Diffusion Decoder</h3>
-                    <p>A diffusion-based decoder reconstructs high-fidelity videos from highly compressed token streams without quality loss.</p>
+                    <h3>Diffusion Loss for Training</h3>
+                    <p>Almost all VAEs/VQGANs use adversarial loss to recover high-frequency details. But in generative modeling, diffusion models capture probability distributions far better than GANs. We <strong>replace adversarial loss with diffusion loss</strong> as the training target, leveraging the generative prior as a powerful decoder.</p>
                 </div>
+            </div>
+        </div>
+    </section>
 
-                <div class="highlight-card">
-                    <div class="highlight-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg>
-                    </div>
-                    <h3>Scalable Generation</h3>
-                    <p>100× token reduction unlocks longer video generation while keeping transformer compute manageable for downstream models.</p>
-                </div>
+    <section class="highlights">
+        <div class="container">
+            <div class="section-header">
+                <!-- <span class="section-eyebrow">// Entertainment</span> -->
+                <h2>Benefits for Entertainment World Model</h2>
+                <p class="section-subtitle">
+                    A 100× more efficient tokenizer reshapes what is possible in commercial video generation.
+                </p>
+            </div>
 
+            <div class="highlight-grid">
                 <div class="highlight-card">
                     <div class="highlight-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                     </div>
-                    <h3>Lower Training Cost</h3>
-                    <p>Shorter token sequences reduce quadratic transformer cost, enabling efficient training on long-horizon video data.</p>
+                    <h3>Training Efficiency & Real-Time Interactive Inference</h3>
+                    <p>Beyond a certain sequence length, transformer compute scales <em>quadratically</em> with token count. A 100× more efficient tokenizer therefore yields <strong>well above 100×</strong> savings in both training and inference — reducing world-model pretraining to a scale comparable to today's post-training.</p>
                 </div>
 
                 <div class="highlight-card">
                     <div class="highlight-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M22 2L12 12"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><polyline points="6 6 2 12 6 18"/><polyline points="18 6 22 12 18 18"/></svg>
                     </div>
-                    <h3>World Model Ready</h3>
-                    <p>Built for embodied ai world modeling and long-horizon simulation — bridging perception and generation.</p>
+                    <h3>Much Longer Context Length</h3>
+                    <p>A highly compact latent space enables dramatically longer context windows. With the same token budget, a 100× efficient tokenizer supports <strong>100× longer durations</strong>, extending today's 5–15 s commercial APIs toward the <strong>10-minute-scale</strong> content era.</p>
+                </div>
+
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8"/><path d="M12 18v2"/><path d="M8 10h2"/><path d="M14 10h2"/><path d="M8 14h8"/></svg>
+                    </div>
+                    <h3>LLM-Native Video Generation</h3>
+                    <p>VAE tokens for a 5 s clip exceed 30–50k, dwarfing the 200–500 text tokens of its caption — joint text-video training collapses under this imbalance. DeltaToken compresses a 5 s clip to <strong>~1k visual tokens</strong>, finally matching the text/visual token ratio for LLM-native video generation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="highlights">
+        <div class="container">
+            <div class="section-header">
+                <!-- <span class="section-eyebrow">// Embodied AI</span> -->
+                <h2>Benefits for Embodied World Model</h2>
+                <p class="section-subtitle">
+                    Compact, physics-aligned, and architecturally clean — built for the next generation of robotics.
+                </p>
+            </div>
+
+            <div class="highlight-grid">
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3"/><path d="M15 1v3"/><path d="M9 20v3"/><path d="M15 20v3"/><path d="M20 9h3"/><path d="M20 14h3"/><path d="M1 9h3"/><path d="M1 14h3"/></svg>
+                    </div>
+                    <h3>Training Efficiency & On-device Inference</h3>
+                    <p>Robotics inference runs under strict power and cost budgets, where on-device GPU compute is severely limited. Existing VAE representations force compromises in resolution and model size. <strong>DeltaToken removes this tradeoff</strong>, allowing larger models without sacrificing resolution.</p>
+                </div>
+
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4c0 1.5.8 2.8 2 3.5V14"/><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V14"/><circle cx="12" cy="18" r="4"/></svg>
+                    </div>
+                    <h3>Better Alignment with Physical Modeling</h3>
+                    <p>Conventional VAE latent spaces are <em>physically opaque</em> — they bear no meaningful relationship to physical dynamics. Because DeltaToken explicitly models inter-frame deltas and motion, its latent space is <strong>naturally aligned with physical change</strong>, since physics in the visual domain is fundamentally about temporal differences.</p>
+                </div>
+
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><circle cx="7" cy="6" r="1.5" fill="currentColor"/><circle cx="13" cy="12" r="1.5" fill="currentColor"/><circle cx="10" cy="18" r="1.5" fill="currentColor"/></svg>
+                    </div>
+                    <h3>Elegant World Modeling Architecture</h3>
+                    <p>Text, audio, and action are naturally 1D, while image/video VAE outputs are 2D/3D — making multimodal modeling awkward. DeltaToken unifies all modalities in a <strong>single 1D space</strong>. Video and action can even be concatenated along the channel dimension for joint generation, already aligned on the temporal axis.</p>
                 </div>
             </div>
         </div>
@@ -1159,13 +1252,15 @@
                 </div>
 
                 <div class="gen-note collab">
-                    <span class="label">Note:</span> the current preliminary result is a
-                    <strong>self-funded exploration project</strong>, so all the data and compute are very limited 
+                    <span class="label">Note1:</span> the current preliminary result is a
+                    <strong>self-funded research project</strong>, so all the data and compute are very limited 
                     (but all the data pipeline and training infrastructure are designed for the large-scale experiments). 
                     We believe that if scaled with <strong>8× model size</strong>, <strong>64× data</strong> and
-                    <strong>32× compute</strong> (it will take around $0.6m and 4-6 weeks and it's still 15x less data and 30x less compute than the state-of-the-art models), we can get a top-tier competitive foundation model.
+                    <strong>32× compute</strong> (It will take around $0.6m and 4 weeks. And it's still 15x less data and 30x less compute than the state-of-the-art models), we can get a top-tier competitive foundation model.
                     If you are interested in further collaboration, feel free to reach out to
                     <a href="mailto:qiangzhang0123@gmail.com">qiangzhang0123@gmail.com</a>.
+                    <br><br>
+                    <span class="label">Note2:</span> Disclaimer: All the tokenizer building, data processing, model implementation, model training, experimentation and presentation are done by Qiang from scratch while not employed by any company, all the legal IP belongs to Qiang himself.
                 </div>
             </div>
 
